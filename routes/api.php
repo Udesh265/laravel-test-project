@@ -4,6 +4,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\StudentController;
+use App\Models\Student;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,9 +24,9 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::get('/test', [TestController::class, 'test']);
 
+Route::middleware('auth:sanctum')->group(function () {
+    // echo ("errrr");
+});
+// Route::post('/product-test', [ProductController::class, 'productTest']);
 
-// Route::middleware(['auth:sanctum'])->group(function () {
-//     Route::post('/product-test', [ProductController::class, 'productTest']);
-// });
-
-Route::middleware(['auth:sanctum'])->post('/product-test', [ProductController::class, 'productTest']);
+Route::apiResource('student', StudentController::class);
