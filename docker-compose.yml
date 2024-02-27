@@ -1,0 +1,63 @@
+version: '1'
+
+networks:
+    laraveltest:
+
+volumes:
+    laraveltest_mysql:
+        name: laraveltest_mysql_data
+
+services:
+    nginx:
+        image: nginx:stable-alpine
+        container_name: laraveltestProject_nginx_server
+        ports:
+            - "80:80"
+        volumes:
+            - ./:/var/www
+            - ./docker/nginx/conf.d:/etc/nginx/conf.d
+        depends_on:
+            - php
+            - mariadb
+        networks:
+            - laraveltest
+        extra_hosts:
+            - "host.docker.internal:host-gateway"
+
+    php:
+        build:
+            context: .
+            dockerfile: ./docker/php/Dockerfile
+        container_name: laraveltestProject_php_service
+        volumes:
+            - ./:/var/www
+        networks:
+            - laraveltest
+
+    mariadb:
+        image: mariadb:10.11.2-jammy
+        container_name: laraveltestProject_mariadb_server
+        restart: unless-stopped
+        tty: true
+        ports:
+            - "3306:3306"
+        volumes:
+            - laraveltest_mysql:/var/lib/mysql
+        environment:
+            MARIADB_DATABASE: laraveltest_db
+            MARIADB_USER: root
+            MARIADB_PASSWORD: password
+            MARIADB_ROOT_PASSWORD: password
+            SERVICE_TAG: dev
+            SERVICE_NAME: laraveltest_mariadb_service
+        networks:
+            - laraveltest
+
+    npm:
+        image: node:18.19.0-alpine
+        container_name: laraveltestProject_npm_service
+        tty: true
+        volumes:
+            - ./:/var/www
+        networks:
+            - laraveltest
